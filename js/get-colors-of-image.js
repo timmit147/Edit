@@ -7,7 +7,6 @@ function getColorCategory(r, g, b) {
     if (r > 200 && b < 100 && g < 100) return 'Orange'; // Bright orange
     if (r < 100 && g < 100 && b > 200) return 'Purple'; // Bright purple
     if (r > 200 && g > 200 && b > 200) return 'White'; // White
-    if (r < 100 && g < 100 && b < 100) return 'Black'; // Black
     return 'Other'; // Catch-all for anything else
 }
 
@@ -35,7 +34,8 @@ function processImage(file) {
                     let b = data[i + 2];
                     let alpha = data[i + 3];
 
-                    if (alpha > 0 && (r + g + b) > 300) { // Filter darker colors
+                    // Filter out pixels that are too dark (black)
+                    if (alpha > 0 && (r + g + b) > 150) {
                         let category = getColorCategory(r, g, b);
 
                         if (!colorData[category]) {
@@ -57,10 +57,15 @@ function processImage(file) {
                         let avgHex = `#${((1 << 24) + (avgR << 16) + (avgG << 8) + avgB).toString(16).slice(1)}`;
                         return { color: avgHex, category: key };
                     })
-                    .sort((a, b) => b.category.localeCompare(a.category)) // Sort by category name
-                    .slice(0, 5); // Get top 5 color categories
+                    .sort((a, b) => b.category.localeCompare(a.category)); // Sort by category name
 
-                displayColors(sortedColors);
+                // Always show at least one color
+                if (sortedColors.length === 0) {
+                    sortedColors.push({ color: '#000000', category: 'Black' }); // Fallback to black if no colors are found
+                }
+
+                // Limit to top 5 color categories, including any fallback
+                displayColors(sortedColors.slice(0, 5));
             };
         };
         reader.readAsDataURL(file);
@@ -79,7 +84,7 @@ function displayColors(colors) {
     colors.forEach(entry => {
         const colorDiv = document.createElement('div');
         colorDiv.style.backgroundColor = entry.color;
-        colorDiv.style.padding = '10px';
+        colorDiv.style.height = '20px';
         colorDiv.style.width = '100%';
         colorDiv.style.margin = '5px 0';
         colorDiv.textContent = `Color: ${entry.color}`;
@@ -125,3 +130,8 @@ document.addEventListener('keydown', function(event) {
 });
 
 
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        window.location.href = 'index.html';
+    }
+});
