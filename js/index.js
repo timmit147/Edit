@@ -3,8 +3,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const dropdown = document.querySelector('.dropdown');
     const dropdownItems = dropdown.querySelectorAll('li');
 
-    // Hide dropdown by default
-    dropdown.style.display = 'none';
+    // Show all items by default on page load
+    dropdownItems.forEach(function(item) {
+        item.style.display = 'block';
+    });
+
+    // Show the dropdown initially
+    dropdown.style.display = 'block';
 
     // Filter dropdown items based on input
     searchInput.addEventListener('input', function() {
@@ -13,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         dropdownItems.forEach(function(item) {
             const text = item.textContent.toLowerCase();
-            if (text.includes(filter)) {
+            if (filter === '' || text.includes(filter)) {
                 item.style.display = 'block';
                 hasVisibleItems = true;
             } else {
@@ -35,17 +40,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Focus the input when the page loads
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.querySelector('.search-input');
 
-    // Focus the input when the page loads
     searchInput.focus();
 
     // Add an event listener to the document
     document.addEventListener('click', function(event) {
-        // Check if the clicked element is not the input or its parent
         if (!searchInput.contains(event.target) && !searchInput.isSameNode(event.target)) {
             searchInput.focus(); // Refocus the input
         }
+    });
+});
+
+// Handle enter key press to navigate to the URL
+document.addEventListener('DOMContentLoaded', () => {
+    const dropdownItems = document.querySelectorAll('.dropdown li');
+
+    dropdownItems.forEach(item => {
+        item.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                window.location.href = item.getAttribute('data-url');
+            }
+        });
     });
 });
