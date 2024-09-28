@@ -30,9 +30,20 @@ copyButton.addEventListener('click', function () {
                 insideMultiLineComment = true;
                 i += 2; 
             }
+            else if (!insideString && !insideSingleLineComment && code[i] === '<' && code[i + 1] === '!' && code[i + 2] === '-' && code[i + 3] === '-') {
+                insideMultiLineComment = true; 
+                i += 4; 
+            }
             else if (insideMultiLineComment && code[i] === '*' && code[i + 1] === '/') {
                 insideMultiLineComment = false;
                 i += 2; 
+            }
+            else if (insideMultiLineComment && code[i] === '-' && code[i + 1] === '-') {
+                if (code[i + 2] === '>') {
+                    insideMultiLineComment = false; 
+                    i += 3; 
+                    continue;
+                }
             }
             else if (insideSingleLineComment && code[i] === '\n') {
                 insideSingleLineComment = false;
@@ -46,12 +57,14 @@ copyButton.addEventListener('click', function () {
             }
             else if (insideSingleLineComment || insideMultiLineComment) {
                 i++; 
-            } else {
-                if (i < code.length - 1 && code[i] === '/' && code[i + 1] === '/') {
-                    insideSingleLineComment = true; 
-                } else {
-                    result += code[i]; 
+            } 
+            else if (!insideSingleLineComment && !insideMultiLineComment && code[i] === '/' && code[i + 1] === '/') {
+                while (i < code.length && code[i] !== '\n') {
+                    i++;
                 }
+            } 
+            else {
+                result += code[i]; 
                 i++;
             }
         }
@@ -62,6 +75,7 @@ copyButton.addEventListener('click', function () {
     }
     text = removeComments(text);
     navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
     }).catch(err => {
         console.error('Failed to copy: ', err);
     });
