@@ -13,12 +13,18 @@ textarea.addEventListener('input', function() {
     // Remove duplicate empty lines
     text = text.replace(/(\n\s*\n)+/g, '\n\n');
 
+    // Escape HTML special characters
+    function escapeHtml(html) {
+        const textArea = document.createElement('textarea');
+        textArea.textContent = html; // Use textContent to set the text
+        return textArea.innerHTML; // Get the escaped HTML
+    }
+
+    // Escape the text to prevent HTML interpretation
+    const escapedText = escapeHtml(text);
+
     // Replace newlines with <br> for HTML output
-    // Escape HTML to prevent rendering
-    const output = text.replace(/&/g, '&amp;') // Escape ampersand
-                       .replace(/</g, '&lt;')  // Escape less than
-                       .replace(/>/g, '&gt;')  // Escape greater than
-                       .replace(/\n/g, '<br>'); // Replace newlines with <br>
+    const output = escapedText.replace(/\n/g, '<br>');
 
     // Set the output
     outputDiv.innerHTML = output;
