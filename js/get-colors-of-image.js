@@ -1,16 +1,13 @@
-// Function to determine color category based on RGB values
 function getColorCategory(r, g, b) {
     if (r > g && r > b) return 'Red';
     if (g > r && g > b) return 'Green';
     if (b > r && b > g) return 'Blue';
-    if (r > 200 && g > 200 && b < 100) return 'Yellow'; // Bright yellow
-    if (r > 200 && b < 100 && g < 100) return 'Orange'; // Bright orange
-    if (r < 100 && g < 100 && b > 200) return 'Purple'; // Bright purple
-    if (r > 200 && g > 200 && b > 200) return 'White'; // White
-    return 'Other'; // Catch-all for anything else
+    if (r > 200 && g > 200 && b < 100) return 'Yellow'; 
+    if (r > 200 && b < 100 && g < 100) return 'Orange'; 
+    if (r < 100 && g < 100 && b > 200) return 'Purple'; 
+    if (r > 200 && g > 200 && b > 200) return 'White'; 
+    return 'Other'; 
 }
-
-// Function to handle image processing (extracting top color categories)
 function processImage(file) {
     if (file && (file.type.startsWith('image/'))) {
         let reader = new FileReader();
@@ -25,30 +22,23 @@ function processImage(file) {
                 ctx.drawImage(img, 0, 0);
                 let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 let data = imageData.data;
-
                 let colorData = {};
-
                 for (let i = 0; i < data.length; i += 4) {
                     let r = data[i];
                     let g = data[i + 1];
                     let b = data[i + 2];
                     let alpha = data[i + 3];
-
-                    // Filter out pixels that are too dark (black)
                     if (alpha > 0 && (r + g + b) > 150) {
                         let category = getColorCategory(r, g, b);
-
                         if (!colorData[category]) {
                             colorData[category] = { count: 0, rSum: 0, gSum: 0, bSum: 0 };
                         }
-
                         colorData[category].count++;
                         colorData[category].rSum += r;
                         colorData[category].gSum += g;
                         colorData[category].bSum += b;
                     }
                 }
-
                 let sortedColors = Object.entries(colorData)
                     .map(([key, value]) => {
                         let avgR = Math.round(value.rSum / value.count);
@@ -57,14 +47,10 @@ function processImage(file) {
                         let avgHex = `#${((1 << 24) + (avgR << 16) + (avgG << 8) + avgB).toString(16).slice(1)}`;
                         return { color: avgHex, category: key };
                     })
-                    .sort((a, b) => b.category.localeCompare(a.category)); // Sort by category name
-
-                // Always show at least one color
+                    .sort((a, b) => b.category.localeCompare(a.category)); 
                 if (sortedColors.length === 0) {
-                    sortedColors.push({ color: '#000000', category: 'Black' }); // Fallback to black if no colors are found
+                    sortedColors.push({ color: '#000000', category: 'Black' }); 
                 }
-
-                // Limit to top 5 color categories, including any fallback
                 displayColors(sortedColors.slice(0, 5));
             };
         };
@@ -73,14 +59,9 @@ function processImage(file) {
         alert('Please upload a valid image file.');
     }
 }
-
-// Function to display colors below the h2 element
 function displayColors(colors) {
     const colorContainer = document.getElementById('colorContainer');
-    
-    // Clear previous colors
     colorContainer.innerHTML = '';
-
     colors.forEach(entry => {
         const colorDiv = document.createElement('div');
         colorDiv.style.backgroundColor = entry.color;
@@ -88,38 +69,28 @@ function displayColors(colors) {
         colorDiv.style.width = '100%';
         colorDiv.style.margin = '5px 0';
         colorDiv.textContent = `Color: ${entry.color}`;
-        colorDiv.style.cursor = 'default'; // Prevent pointer cursor
-
-        // Prevent opening file dialog when clicking on color blocks
+        colorDiv.style.cursor = 'default'; 
         colorDiv.addEventListener('click', function(event) {
-            event.stopPropagation(); // Stop the event from bubbling up
+            event.stopPropagation(); 
         });
-
         colorContainer.appendChild(colorDiv);
     });
 }
-
-// Handle click-to-upload
 document.body.addEventListener('click', function() {
     document.getElementById('uploadImage').click();
 });
-
 document.getElementById('uploadImage').addEventListener('change', function(event) {
     let file = event.target.files[0];
     processImage(file);
 });
-
-// Handle drag-and-drop
 document.body.addEventListener('dragover', function(event) {
     event.preventDefault();
 });
-
 document.body.addEventListener('drop', function(event) {
     event.preventDefault();
     let file = event.dataTransfer.files[0];
     processImage(file);
 });
-
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         const popup = document.getElementById('colorPopup');
@@ -128,8 +99,6 @@ document.addEventListener('keydown', function(event) {
         }
     }
 });
-
-
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         window.location.href = 'index.html';
