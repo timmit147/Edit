@@ -1,31 +1,33 @@
 const textarea = document.querySelector('textarea');
-const outputDiv = document.querySelector('.non-editable');
+        const copyButton = document.getElementById('copyButton');
 
-textarea.addEventListener('input', function() {
-    let text = textarea.value;
+        copyButton.addEventListener('click', function() {
+            let text = textarea.value;
 
-    // Remove single-line comments (// comment)
-    text = text.replace(/\/\/.*$/gm, '');
+            // Remove single-line comments (//)
+            text = text.replace(/\/\/.*(?=\n|$)/g, '');
 
-    // Remove multi-line comments (/* comment */)
-    text = text.replace(/\/\*[\s\S]*?\*\//g, '');
+            // Remove multi-line comments (/* ... */)
+            text = text.replace(/\/\*[\s\S]*?\*\//g, '');
 
-    // Remove duplicate empty lines
-    text = text.replace(/(\n\s*\n)+/g, '\n\n');
+            // Normalize new lines: remove extra new lines while keeping at least one
+            text = text.replace(/(\n\s*\n)+/g, '\n\n');
 
-    // Escape HTML special characters
-    function escapeHtml(html) {
-        const textArea = document.createElement('textarea');
-        textArea.textContent = html; // Use textContent to set the text
-        return textArea.innerHTML; // Get the escaped HTML
-    }
+            // Trim leading/trailing whitespace
+            text = text.trim();
 
-    // Escape the text to prevent HTML interpretation
-    const escapedText = escapeHtml(text);
+            function escapeHtml(html) {
+                const textArea = document.createElement('textarea');
+                textArea.textContent = html;
+                return textArea.innerHTML;
+            }
 
-    // Replace newlines with <br> for HTML output
-    const output = escapedText.replace(/\n/g, '<br>');
+            const escapedText = escapeHtml(text);
 
-    // Set the output
-    outputDiv.innerHTML = output;
-});
+            // Copy to clipboard
+            navigator.clipboard.writeText(escapedText).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        });
